@@ -1,4 +1,5 @@
-import { useState } from "react";
+"use client";
+import { useEffect, useState } from "react";
 import styles from "./Reaction.module.css";
 
 export type IReaction = {
@@ -9,45 +10,79 @@ export type IReaction = {
   author: string;
 };
 
-type Props = {
-  reaction: IReaction;
-  onSave: (reaction: IReaction) => void;
-  focused: boolean;
-};
-
 const getAuthorInitial = (author: string) => author[0];
 
-const PinReaction = ({ reaction }: { reaction: IReaction }) => {
+type PinReactionProps = {
+  reaction: IReaction;
+  onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+};
+
+const PinReaction = ({ reaction, onClick }: PinReactionProps) => {
   return (
     <div
-      style={{ position: "absolute", left: reaction.x, top: reaction.y }}
+      style={{
+        position: "absolute",
+        left: `${reaction.x}%`,
+        top: `${reaction.y}%`,
+      }}
       className={styles.pinReaction}
+      onClick={onClick}
     >
       {getAuthorInitial(reaction.author)}
     </div>
   );
 };
 
-export const Reaction = ({ reaction, onSave, focused }: Props) => {
+type ReactionProps = {
+  reaction: IReaction;
+  onSave: (reaction: IReaction) => void;
+  onFocus: (reaction: IReaction) => void;
+  focused: boolean;
+};
+
+export const Reaction = ({
+  reaction,
+  onSave,
+  onFocus,
+  focused,
+}: ReactionProps) => {
   const [message, setMessage] = useState(reaction.message);
 
+  const onClickPin = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    onFocus(reaction);
+  };
+
   if (!focused) {
-    return <PinReaction reaction={reaction} />;
+    return <PinReaction reaction={reaction} onClick={onClickPin} />;
   }
 
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
 
-  const handleSave = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClickSave = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
     onSave({ ...reaction, message });
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
   };
 
   return (
     <div
       className={styles.reaction}
-      style={{ position: "absolute", left: reaction.x, top: reaction.y }}
+      style={{
+        position: "absolute",
+        left: `${reaction.x}%`,
+        top: `${reaction.y}%`,
+      }}
+      onClick={handleClick}
     >
+      <div className={styles.reactionInputInitial}>
+        {getAuthorInitial(reaction.author)}
+      </div>
       <input
         className={styles.reactionInput}
         type="text"
@@ -55,7 +90,7 @@ export const Reaction = ({ reaction, onSave, focused }: Props) => {
         placeholder="Add comment..."
         onChange={handleMessageChange}
       />
-      <button className={styles.reactionButton} onClick={handleSave}>
+      <button className={styles.reactionButton} onClick={handleClickSave}>
         Save
       </button>
     </div>

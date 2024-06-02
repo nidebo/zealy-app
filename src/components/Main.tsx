@@ -1,38 +1,56 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./Main.module.css";
-import { Reaction } from "./Reaction";
-import { randomUUID } from "crypto";
+import { IReaction, Reaction } from "./Reaction";
 
-const _reactions = [
+const initialReactions = [
   {
     id: "ea68a2be-31a2-46be-8764-32cdb685b6b7",
-    message: "Hello, World!",
-    x: 205,
-    y: 301,
+    message: "First Reaction!",
+    x: 20,
+    y: 5,
     author: "nico",
   },
   {
     id: "4afb5066-e336-4341-89fd-e26409adabfc",
-    message: "Hello, World!",
-    x: 280,
-    y: 400,
+    message: "Second Reaction!",
+    x: 10,
+    y: 40,
     author: "nico",
   },
 ];
 
 export const Main = () => {
-  const [reactions, setReactions] = useState(_reactions);
+  const [reactions, setReactions] = useState(initialReactions);
   const [editingReaction, setEditingReaction] = useState<string | null>(null);
+
+  const resetEditingReaction = () => {
+    setReactions((reactions) =>
+      reactions.filter((reaction) => reaction.message.length > 0)
+    );
+    setEditingReaction(null);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        resetEditingReaction();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (editingReaction) {
       return;
     }
 
-    const x = event.clientX;
-    const y = event.clientY;
+    const x = (event.clientX / window.innerWidth) * 100;
+    const y = (event.clientY / window.innerHeight) * 100;
     const newReaction = {
       id: crypto.randomUUID(),
       message: "",
@@ -44,23 +62,27 @@ export const Main = () => {
     setEditingReaction(newReaction.id);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape") {
-      setEditingReaction(null);
-    }
+  const onSaveReaction = (editedReaction: IReaction) => {
+    setReactions((reactions) =>
+      reactions.map((reaction) =>
+        reaction.id === editingReaction ? editedReaction : reaction
+      )
+    );
+    resetEditingReaction();
   };
 
-  const onSaveReaction = () => {
-    setEditingReaction(null);
+  const handleFocus = (reaction: IReaction) => {
+    setEditingReaction(reaction.id);
   };
 
   return (
-    <div onClick={handleClick} onKeyDown={handleKeyDown}>
+    <div onClick={handleClick}>
       {reactions.map((reaction) => (
         <Reaction
           key={reaction.id}
           reaction={reaction}
           onSave={onSaveReaction}
+          onFocus={handleFocus}
           focused={editingReaction === reaction.id}
         />
       ))}
