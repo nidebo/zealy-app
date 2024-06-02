@@ -1,0 +1,42 @@
+.reaction {
+  z-index: 10;
+  background-color: rgb(27, 26, 26);
+  display: flex;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  height: 50px;
+}
+
+.reactionInput {
+  background-color: rgb(27, 26, 26);
+  color: white;
+  margin-right: 8px;
+  border: none;
+}
+
+.reactionButton {
+  background-color: rgb(50, 50, 238);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.reactionButton:hover {
+  background-color: rgb(65, 65, 254);
+}
+
+.pinReaction {
+  z-index: 10;
+  background-color: rgb(27, 26, 26);
+  color: white;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 80px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  text-transform: uppercase;
+}
